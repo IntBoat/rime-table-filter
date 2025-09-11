@@ -1,0 +1,81 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Go: 直接執行 (預設參數)",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/main.go",
+      "args": [
+        "-f",
+        "${workspaceFolder}/NotoSansCJK-Regular.ttc",
+        "-d",
+        "${workspaceFolder}/quick5.dict.yaml",
+        "-i",
+        "0",
+        "-o",
+        "${workspaceFolder}/filtered_dict.yaml",
+        "-c",
+        "1000"
+      ],
+      "cwd": "${workspaceFolder}",
+      "env": {}
+    },
+    {
+      "name": "Go: 互動輸入參數",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/main.go",
+      "args": [
+        "-f",
+        "${input:fontPath}",
+        "-d",
+        "${input:dictPath}",
+        "-i",
+        "${input:fontIndex}",
+        "-o",
+        "${input:outputPath}",
+        "-c",
+        "${input:cacheSize}"
+      ],
+      "cwd": "${workspaceFolder}",
+      "env": {}
+    }
+  ],
+  "inputs": [
+    {
+      "id": "fontPath",
+      "type": "promptString",
+      "description": "TTC 字型文件路徑",
+      "default": "${workspaceFolder}/NotoSansCJK-Regular.ttc"
+    },
+    {
+      "id": "dictPath",
+      "type": "promptString",
+      "description": "Rime 字典文件路徑",
+      "default": "${workspaceFolder}/quick5.dict.yaml"
+    },
+    {
+      "id": "fontIndex",
+      "type": "promptString",
+      "description": "字型編號 (0-9)",
+      "default": "0"
+    },
+    {
+      "id": "outputPath",
+      "type": "promptString",
+      "description": "輸出文件路徑",
+      "default": "${workspaceFolder}/filtered_dict.yaml"
+    },
+    {
+      "id": "cacheSize",
+      "type": "promptString",
+      "description": "緩存大小",
+      "default": "1000"
+    }
+  ]
+}
+
+

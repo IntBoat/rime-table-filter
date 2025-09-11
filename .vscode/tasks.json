@@ -1,0 +1,66 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Go: Build (dev)",
+      "type": "shell",
+      "command": "go build -o rime-filter main.go",
+      "group": "build",
+      "problemMatcher": [
+        "$go"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "Make: build",
+      "type": "shell",
+      "command": "make build",
+      "group": "build",
+      "problemMatcher": [
+        "$go"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "Make: install",
+      "type": "shell",
+      "command": "make install",
+      "group": "none",
+      "problemMatcher": [
+        "$go"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "Make: clean",
+      "type": "shell",
+      "command": "make clean",
+      "group": "none",
+      "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "Run (default args)",
+      "type": "shell",
+      "command": "./rime-filter -f NotoSansCJK-Regular.ttc -d quick5.dict.yaml -i 0 -o filtered_dict.yaml -c 1000",
+      "group": "test",
+      "dependsOn": [
+        "Go: Build (dev)"
+      ],
+      "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    }
+  ]
+}
+
+

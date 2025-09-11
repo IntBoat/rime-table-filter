@@ -1,0 +1,76 @@
+name: Build And Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    name: Release Go Binary
+    runs-on: ubuntu-latest
+    env:
+      GOPRIVATE: git.zedo.dev
+      ACCESS_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+    container:
+      image: git.zedo.dev/app/golang:bookworm
+      credentials:
+        username: ${{ secrets.DOCKER_CONTAINER_REGISTRY_USERNAME }}
+        password: ${{ secrets.ACTIONS_TOKEN }}
+    steps:
+      - name: 🛠 Setup GIT
+        run: |
+          git config --global url.https://$ACCESS_TOKEN@git.zedo.dev/.insteadOf https://git.zedo.dev/
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git clone $GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git . > /dev/null 2>&1
+          echo "SHORT_SHA=`echo ${{ github.sha }} | cut -c1-8`" >> $GITHUB_ENV
+
+      - name: 🆔 Get hash
+        id: get-hash
+        run: |
+          echo "hash=$(sha256sum go.sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+
+      - name: 🗃 Setup Cache
+        uses: https://github.com/actions/cache@v3
+        with:
+          path: |
+            /go/pkg/mod
+          key: ${{ runner.os }}-go-${{ steps.get-hash.outputs.hash }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: 🤖 Build
+        run: |
+          mkdir -p build
+          go version
+          go env -w GOPRIVATE=git.zedo.dev
+          go mod download
+          go build -trimpath -ldflags "-s -w" -o build/rime-filter main.go
+          mkdir -p dist
+          cp build/rime-filter dist/rime-filter
+
+      - name: Use Go Action
+        id: use-go-action
+        uses: https://gitea.com/actions/release-action@main
+        with:
+          files: |-
+            dist/**
+          api_key: '${{secrets.ACTIONS_TOKEN}}'
+
+      - name: 💬 Telegram Notify
+        uses: https://github.com/appleboy/telegram-action@master
+        if: always()
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          disable_web_page_preview: true
+          format: markdown
+          message: |
+            [Build ${{ gitea.repository }}#${{ gitea.run_number }}](https://git.zedo.dev/${{ gitea.repository }}/actions/runs/${{ gitea.run_number }}): *${{ job.status }}*
+            ```
+            Author:  ${{ gitea.actor }}
+            Ref:     ${{ gitea.ref }}
+            Event:   ${{ gitea.event_name }}
+            Commit:  ${{ env.SHORT_SHA }}
+            ```
